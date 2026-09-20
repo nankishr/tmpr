@@ -1,0 +1,25 @@
+.{
+    .name = .tmpr,
+    .version = "0.0.0",
+    .fingerprint = 0x1422d94240ee0d95,
+    .minimum_zig_version = "0.17.0-dev.2234+80fe9b2b7",
+    .dependencies = .{
+        .miniaudio = .{
+            .url = "git+https://github.com/mackron/miniaudio.git#9634bedb5b5a2ca38c1ee7108a9358a4e233f14d",
+            .hash = "N-V-__8AAHNWwAASlNuYbrP1-3UqXdwbYvZ_6nIJhpAcRMfi",
+        },
+        .libsoxr = .{
+            .url = "git+https://github.com/chirlu/soxr.git#945b592b70470e29f917f4de89b4281fbbd540c0",
+            .hash = "N-V-__8AAPV8CACiW1NHVi7OLKXOYujeUFeliRABtBBapdMr",
+        },
+        .simdjzon = .{
+            .url = "git+https://github.com/travisstaloch/simdjzon#2b6e68ca98aea59b2a5c09115835bd9676edff08",
+            .hash = "simdjzon-0.0.1-7uNSgGCEBQA7L9OIVujT7UuTtbt5tR13VqVi8UC8TM_1",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
