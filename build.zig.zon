@@ -16,6 +16,10 @@
             .url = "git+https://github.com/travisstaloch/simdjzon#2b6e68ca98aea59b2a5c09115835bd9676edff08",
             .hash = "simdjzon-0.0.1-7uNSgGCEBQA7L9OIVujT7UuTtbt5tR13VqVi8UC8TM_1",
         },
+        .known_folders = .{
+            .url = "git+https://github.com/ziglibs/known-folders.git#6da0d0c41b78b9ed2d34fa364fcb81b5ebece6c4",
+            .hash = "known_folders-0.0.0-Fy-PJiDLAAB98m3uYUzatrTb2mO2fpvwx2zpSroEtfbO",
+        },
     },
     .paths = .{
         "build.zig",

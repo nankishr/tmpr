@@ -20,9 +20,14 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const known_folders = b.dependency("known_folders", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     // zig fmt: off
     const exe = b.addExecutable(.{
-        .name = "dev",
+        .name = "tmpr",
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/main.zig"),
             .target = target,
@@ -37,6 +42,10 @@ pub fn build(b: *std.Build) void {
                     .name = "simdjzon", 
                     .module = simdjzon_dep.module("simdjzon")
                 },
+                .{
+                    .name = "known-folders",
+                    .module = known_folders.module("known-folders")
+                }
             },
             .strip = !is_dev
         }),
