@@ -1,0 +1,63 @@
+name: Update radio stations
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: stations
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+
+      - name: Checkout archive
+        uses: actions/checkout@v7
+        with:
+          ref: archive
+          path: archive
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y dnsutils zstd
+
+      - name: Fetch stations
+        run: |
+          mkdir -p generated
+          python3 scripts/update_radio_stations.py > generated/stations.json
+          jq empty generated/stations.json
+          count=$(jq length generated/stations.json)
+          echo "got $count stations"
+          test "$count" -gt 0
+
+      - name: Check for changes
+        id: diff
+        run: |
+          new=$(sha256sum generated/stations.json | cut -d' ' -f1)
+          old=$(cat archive/stations.sha256 2>/dev/null || true)
+          echo "new: $new"
+          echo "old: $old"
+          echo "$new" > generated/stations.sha256
+          if [ "$new" = "$old" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit new data
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          zstd -19 --rm generated/stations.json
+          cp generated/stations.json.zst generated/stations.sha256 archive/
+          cd archive
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stations.json.zst stations.sha256
+          git commit -m "Update station database"
+          git push origin archive
