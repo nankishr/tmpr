@@ -14,15 +14,11 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout main
         uses: actions/checkout@v7
-
-      - name: Checkout archive
-        uses: actions/checkout@v7
-        with:
-          ref: archive
-          path: archive
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y dnsutils zstd
@@ -40,7 +36,9 @@ jobs:
         id: diff
         run: |
           new=$(sha256sum generated/stations.json | cut -d' ' -f1)
-          old=$(cat archive/stations.sha256 2>/dev/null || true)
+          mkdir -p old
+          gh release download Radio-Station-Data --pattern stations.sha256 --dir old 2>/dev/null || true
+          old=$(cat old/stations.sha256 2>/dev/null || true)
           echo "new: $new"
           echo "old: $old"
           echo "$new" > generated/stations.sha256
@@ -50,14 +48,8 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit new data
+      - name: Publish
         if: steps.diff.outputs.changed == 'true'
         run: |
           zstd -19 --rm generated/stations.json
-          cp generated/stations.json.zst generated/stations.sha256 archive/
-          cd archive
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add stations.json.zst stations.sha256
-          git commit -m "Update station database"
-          git push origin archive
+          gh release upload Radio-Station-Data generated/stations.json.zst generated/stations.sha256 --clobber
